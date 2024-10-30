@@ -1,0 +1,6 @@
+pear
+peach
+apple
+orange
+banana
+./redirect pid is 2769. forked 0. Parent exiting
