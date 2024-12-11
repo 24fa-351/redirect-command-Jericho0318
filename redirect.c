@@ -1,22 +1,24 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     if (argc < 4) {
-        fprintf(stderr,
-            "Usage: %s <inputFile> <command> <outputFile>[<arg1> <arg2> ...]\n", argv[0]);
+        fprintf(
+            stderr,
+            "Usage: %s <inputFile> <command> <outputFile>[<arg1> <arg2> ...]\n",
+            argv[0]);
         return 1;
     }
-    int input_fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-    int output_fd = open(argv[3], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-    
+    int input_fd =
+        open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    int output_fd =
+        open(argv[3], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+
     if (input_fd == -1) {
         fprintf(stderr, "Failed to open %s\n", argv[1]);
         return 1;
@@ -29,9 +31,7 @@ int main(int argc, char* argv[])
 
     char** newargv = (char**)malloc(sizeof(char*) * (1 + argc - 2));
 
-    for (int ix = 2; ix < argc; ix++) {
-        newargv[ix - 2] = (char*)argv[ix];
-    }
+    for (int ix = 2; ix < argc; ix++) newargv[ix - 2] = (char*)argv[ix];
     newargv[argc - 2] = NULL;
 
     int child_pid = fork();
@@ -46,20 +46,18 @@ int main(int argc, char* argv[])
         }
 
         execve(newargv[0], newargv, NULL);
-
     }
     close(input_fd);
-    const char *words[] = {"pear", "peach", "apple", "orange", "banana"};
-    size_t numwords = sizeof(words)/sizeof(words[0]);
-    for (size_t ix = 0; ix < numwords; ix++) {
-        dprintf(output_fd, "%s\n", words[ix]);
-    }
+    const char* words[] = {"pear", "peach", "apple", "orange", "banana"};
+    size_t numwords = sizeof(words) / sizeof(words[0]);
+    for (size_t i = 0; i < numwords; i++) dprintf(output_fd, "%s\n", words[i]);
     close(output_fd);
 
     int status;
     pid_t wpid = waitpid(child_pid, &status, 0);
-    printf("%s pid is %d. forked %d. "
-           "Parent exiting\n",
+    printf(
+        "%s pid is %d. forked %d. "
+        "Parent exiting\n",
         argv[0], getpid(), child_pid);
     return wpid == child_pid && WIFEXITED(status) ? WIFEXITED(status) : -1;
 }
